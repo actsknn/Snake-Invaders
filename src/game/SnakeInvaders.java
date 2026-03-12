@@ -5,18 +5,28 @@ CLASS: YourGameNameoids
 DESCRIPTION: Extending Game, YourGameName is all in the paint method.
 NOTE: This class is the metaphorical "main method" of your program,
       it is your control center.
-
+AUTHORS: Joe Chen, 
 */
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
-class YourGameName extends Game {
+class SnakeInvaders extends Game {
 	static int counter = 0;
 
-  public YourGameName() {
-    super("YourGameName!",800,600);
+	Ship playerShip;
+
+	ArrayList<Projectile> lasers = new ArrayList<>();
+
+	int shootCD = 0;
+
+  public SnakeInvaders() {
+    super("SnakeInvaders!",800,600);
     this.setFocusable(true);
 	this.requestFocus();
+
+	playerShip = new Ship(new Point(width/2 - 30, height - 200));
+	this.addKeyListener(playerShip);
   }
   
 	public void paint(Graphics brush) {
@@ -29,10 +39,34 @@ class YourGameName extends Game {
     	counter++;
     	brush.setColor(Color.white);
     	brush.drawString("Counter is " + counter,10,10);
+
+		playerShip.move();
+
+		if(shootCD > 0){
+			shootCD--;
+		}
+		if(playerShip.shoot && shootCD <= 0){
+			Point[] shipPoints = playerShip.getPoints();
+			Point tip = shipPoints[0];
+			double spawnX = tip.x - 5;
+            double spawnY = tip.y + 1;
+			lasers.add(new Projectile(new Point(spawnX, spawnY), playerShip.rotation));
+			shootCD = 30;
+		}
+		for(Projectile laser : lasers){
+			laser.move();
+			brush.setColor(Color.green);
+			laser.paint(brush);
+		}
+
+		lasers.removeIf(laser -> laser.outOfBounds);
+
+		brush.setColor(Color.white);
+		playerShip.paint(brush);
   }
   
 	public static void main (String[] args) {
-   		YourGameName a = new YourGameName();
+   		SnakeInvaders a = new SnakeInvaders();
 		a.repaint();
   }
 }

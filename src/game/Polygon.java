@@ -100,5 +100,27 @@ class Polygon {
     }
     double area = findArea();
     return new Point(Math.abs(sum.x/(6*area)),Math.abs(sum.y/(6*area)));
+
   }
+  //maybe change from void later but we probably dont need a return type
+  public void collides(Polygon other)
+    {
+      for(Point p : this.shape)
+      {
+        if(other.contains(p))
+        {
+          //do something that we code later
+          //maybe also break code? if something collides, the program would terminate 
+          //could make a collision test for player --> npc and npc --> players
+        }
+      }
+
+      for(Point p : other.shape)
+      {
+        if(this.contains(p))
+        {
+          //same thing as above 
+        }
+      }
+    }
 }
