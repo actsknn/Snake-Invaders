@@ -20,6 +20,16 @@ class SnakeInvaders extends Game {
 
 	int shootCD = 0;
 
+	// --- Snake / wave state ---
+	Snake snake;
+	int wave            = 1;
+	int initialLength   = 10;
+	double initialSpeed = 1.5;
+	// Frames to pause between waves (~1.5 s at 100 fps)
+	static final int WAVE_BREAK_FRAMES = 150;
+	int waveCooldown = 0;
+	boolean gameOver = false;
+
   public SnakeInvaders() {
     super("SnakeInvaders!",800,600);
     this.setFocusable(true);
@@ -27,6 +37,8 @@ class SnakeInvaders extends Game {
 
 	playerShip = new Ship(new Point(width/2 - 30, height - 200));
 	this.addKeyListener(playerShip);
+
+	snake = new Snake(initialLength, initialSpeed);
   }
   
 	public void paint(Graphics brush) {
@@ -60,6 +72,42 @@ class SnakeInvaders extends Game {
 		}
 
 		lasers.removeIf(laser -> laser.outOfBounds);
+
+		// --- Snake logic ---
+		if (!gameOver) {
+			if (waveCooldown > 0) {
+				// Between-wave break: count down then spawn the next snake
+				waveCooldown--;
+				brush.setColor(Color.yellow);
+				brush.drawString("Wave " + wave + " incoming...", width/2 - 60, height/2);
+				if (waveCooldown == 0) {
+					int newLength = initialLength + (wave - 1) * 2;
+					double newSpeed = initialSpeed + (wave - 1) * 0.4;
+					snake = new Snake(newLength, newSpeed);
+				}
+			} else if (snake != null) {
+				snake.move();
+				brush.setColor(Color.red);
+				snake.paint(brush);
+
+				brush.setColor(Color.white);
+				brush.drawString("Wave: " + wave, 10, 25);
+				brush.drawString("Segments: " + snake.getSegmentCount(), 10, 40);
+
+				if (snake.collidesWithShip(playerShip)) {
+					gameOver = true;
+				} else if (snake.isFullyDestroyed()) {
+					wave++;
+					waveCooldown = WAVE_BREAK_FRAMES;
+					snake = null;
+				}
+			}
+		}
+
+		if (gameOver) {
+			brush.setColor(Color.red);
+			brush.drawString("GAME OVER", width/2 - 35, height/2);
+		}
 
 		brush.setColor(Color.white);
 		playerShip.paint(brush);
