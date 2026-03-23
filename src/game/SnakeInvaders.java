@@ -16,8 +16,6 @@ class SnakeInvaders extends Game {
 
 	Ship playerShip;
 
-	Snake giantSnake;
-
 	ArrayList<Projectile> lasers = new ArrayList<>();
 
 	int shootCD = 0;
@@ -28,7 +26,6 @@ class SnakeInvaders extends Game {
 	this.requestFocus();
 
 	playerShip = new Ship(new Point(width/2 - 30, height - 200));
-	giantSnake = new Snake(new Point(340, 50));
 	this.addKeyListener(playerShip);
   }
   
@@ -46,7 +43,6 @@ class SnakeInvaders extends Game {
     	//brush.drawString("Counter is " + counter,10,10);
 
 		playerShip.move();
-		giantSnake.move();
 
 		if(shootCD > 0){
 			shootCD--;
@@ -70,8 +66,6 @@ class SnakeInvaders extends Game {
 		brush.setColor(Color.white);
 		playerShip.paint(brush);
 
-		brush.setColor(Color.magenta);
-		giantSnake.paint(brush);
   }
   
 	public static void main (String[] args) {
