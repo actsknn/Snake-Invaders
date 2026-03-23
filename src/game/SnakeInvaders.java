@@ -1,8 +1,8 @@
 package game;
 
 /*
-CLASS: YourGameNameoids
-DESCRIPTION: Extending Game, YourGameName is all in the paint method.
+CLASS: SnakeInvaders
+DESCRIPTION: Extending Game, SnakeInvaders is all in the paint method.
 NOTE: This class is the metaphorical "main method" of your program,
       it is your control center.
 AUTHORS: Joe Chen, 
@@ -16,6 +16,8 @@ class SnakeInvaders extends Game {
 
 	Ship playerShip;
 
+	Snake giantSnake;
+
 	ArrayList<Projectile> lasers = new ArrayList<>();
 
 	int shootCD = 0;
@@ -26,9 +28,12 @@ class SnakeInvaders extends Game {
 	this.requestFocus();
 
 	playerShip = new Ship(new Point(width/2 - 30, height - 200));
+	giantSnake = new Snake(new Point(340, 50));
 	this.addKeyListener(playerShip);
   }
   
+  //Paints the background, ship, and lasers. Features the ship's movement, shooting logic, 
+  //the shooting cooldown, projectile's movement, and deletes out of bounds lasers (uses lambda expression)
 	public void paint(Graphics brush) {
     	brush.setColor(Color.black);
     	brush.fillRect(0,0,width,height);
@@ -36,11 +41,12 @@ class SnakeInvaders extends Game {
     	// sample code for printing message for debugging
     	// counter is incremented and this message printed
     	// each time the canvas is repainted
-    	counter++;
+    	//counter++;
     	brush.setColor(Color.white);
-    	brush.drawString("Counter is " + counter,10,10);
+    	//brush.drawString("Counter is " + counter,10,10);
 
 		playerShip.move();
+		giantSnake.move();
 
 		if(shootCD > 0){
 			shootCD--;
@@ -63,6 +69,9 @@ class SnakeInvaders extends Game {
 
 		brush.setColor(Color.white);
 		playerShip.paint(brush);
+
+		brush.setColor(Color.magenta);
+		giantSnake.paint(brush);
   }
   
 	public static void main (String[] args) {

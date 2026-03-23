@@ -12,6 +12,8 @@ public class Projectile extends Polygon {
     private double speed = 15.0;
     public boolean outOfBounds = false;
 
+    //Constructor declares the shape of the projectile, its starting position offset
+    //and its initial rotation (facing up)
     public Projectile(Point startingPosition, double initialRotation){
         super(new Point[]
             {new Point(0, 0),new Point(10, 0),  
@@ -19,6 +21,8 @@ public class Projectile extends Polygon {
             startingPosition, initialRotation);
     }
 
+    //The projectile moves forward based on the direction it was fired at a constant speed
+    //It's marked out of bounds when it leaves the 800x600 screen
     public void move(){
         this.position.x += speed * Math.cos(Math.toRadians(rotation)); 
         this.position.y += speed * Math.sin(Math.toRadians(rotation));
@@ -29,6 +33,7 @@ public class Projectile extends Polygon {
             }
     }
 
+    //Paints the projectile depending on its position on the screen
     public void paint(Graphics brush){
         Point[] currentPoints = this.getPoints();
         int[] xCoords = new int[currentPoints.length];
