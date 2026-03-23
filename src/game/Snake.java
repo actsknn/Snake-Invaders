@@ -12,35 +12,60 @@ DESCRIPTION: The enemy snake that moves in a Space Invaders-like pattern.
              (remove from getSegments()). The snake keeps moving until it
              either touches the ship or every segment is destroyed, at which
              point a new, slightly longer and faster wave begins.
-AUTHOR: Joe Chen
+AUTHOR: Ajay Cunnane, Joe Chen
 */
 public class Snake extends Polygon {
 
-    public static final int SEGMENT_SIZE = 20;
+    public static final int SEGMENT_SIZE = 40;
     private static final int LEFT_BOUNDARY  = 10;
-    private static final int RIGHT_BOUNDARY = 790;
+    private static final int RIGHT_BOUNDARY = 740;
     private static final int START_Y = 40;
 
-    private ArrayList<Polygon> segments;
     private double speed;
-    private int direction; // -1 = moving left, 1 = moving right
+
+    //RUBRIC REQUIREMENT: Inner Class 1
+    // A marker dropped by the head telling trailing segments where to turn
+    private class Waypoint {
+        double x, y;
+        int dirX, dirY;
+        
+        public Waypoint(double x, double y, int dirX, int dirY) {
+            this.x = x; this.y = y;
+            this.dirX = dirX; this.dirY = dirY;
+        }
+    }
+
+    // RUBRIC REQUIREMENT: Inner Class 2
+    // Represents a single square of the snake, tracking its own direction
+    public class Segment extends Polygon {
+        int dirX, dirY;
+        int targetWaypointIndex = 0; // Which waypoint is this segment looking for next?
+
+        public Segment(Point[] shape, Point position, double rotation, int dirX, int dirY) {
+            super(shape, position, rotation);
+            this.dirX = dirX;
+            this.dirY = dirY;
+        }
+    }
+
+    private ArrayList<Segment> segments;
+    private ArrayList<Waypoint> waypoints;
+
 
     // Creates a snake with the given number of segments and movement speed.
     // Segments are laid out horizontally from the right side of the screen.
     public Snake(int length, double speed) {
         // Polygon requires a real shape; we use a 1x1 placeholder since
         // all drawing is handled through the internal segments list.
-        super(new Point[]{new Point(0,0), new Point(1,0),
-                          new Point(1,1), new Point(0,1)},
-              new Point(0, 0), 0.0);
+        super(new Point[]{new Point(0,0), new Point(1,0), new Point
+            (1,1), new Point(0,1)}, new Point(0, 0),
+            0.0);
 
-        this.speed     = speed;
-        this.direction = -1; // start heading left
-
+        this.speed = speed;
         segments = new ArrayList<>();
+        waypoints = new ArrayList<>();
 
-        // Build segments left-to-right (index 0 = leading left edge)
-        double startX = RIGHT_BOUNDARY - SEGMENT_SIZE;
+        double startX = RIGHT_BOUNDARY; 
         for (int i = 0; i < length; i++) {
             Point[] shape = {
                 new Point(0, 0),
@@ -48,8 +73,8 @@ public class Snake extends Polygon {
                 new Point(SEGMENT_SIZE, SEGMENT_SIZE),
                 new Point(0, SEGMENT_SIZE)
             };
-            segments.add(new Polygon(shape,
-                new Point(startX - i * SEGMENT_SIZE, START_Y), 0.0));
+            Segment seg = new Segment(shape, new Point(startX + (i * SEGMENT_SIZE), START_Y), 0.0, -1, 0);
+            segments.add(seg);
         }
     }
 
@@ -58,33 +83,61 @@ public class Snake extends Polygon {
     public void move() {
         if (segments.isEmpty()) return;
 
-        for (Polygon seg : segments) {
-            seg.position.x += direction * speed;
+        // 1. Check if the current HEAD needs to lay down NEW waypoints
+        Segment head = segments.get(0);
+        
+        // ONLY drop new waypoints if this segment has run out of existing ones to follow!
+        if (head.targetWaypointIndex == waypoints.size()) {
+            if (head.dirX == 1 && head.position.x >= RIGHT_BOUNDARY) {
+                waypoints.add(new Waypoint(RIGHT_BOUNDARY, head.position.y, 0, 1));
+                waypoints.add(new Waypoint(RIGHT_BOUNDARY, head.position.y + SEGMENT_SIZE, -1, 0));
+            } 
+            else if (head.dirX == -1 && head.position.x <= LEFT_BOUNDARY) {
+                waypoints.add(new Waypoint(LEFT_BOUNDARY, head.position.y, 0, 1));
+                waypoints.add(new Waypoint(LEFT_BOUNDARY, head.position.y + SEGMENT_SIZE, 1, 0));
+            }
         }
 
-        // Find the current left and right extents of the whole snake
-        double minX = Double.MAX_VALUE;
-        double maxX = -Double.MAX_VALUE;
-        for (Polygon seg : segments) {
-            if (seg.position.x < minX)                    minX = seg.position.x;
-            if (seg.position.x + SEGMENT_SIZE > maxX)     maxX = seg.position.x + SEGMENT_SIZE;
-        }
+        // 2. Move all segments and check if they step on a waypoint
+        for (Segment seg : segments) {
+            seg.position.x += seg.dirX * speed;
+            seg.position.y += seg.dirY * speed;
+            // If this segment has a waypoint it hasn't reached yet
+            if (seg.targetWaypointIndex < waypoints.size()) {
+                Waypoint wp = waypoints.get(seg.targetWaypointIndex);
+                boolean passed = false;
+                
+                // Did the segment move past the waypoint's coordinates?
+                if (seg.dirX == 1 && seg.position.x >= wp.x) passed = true;
+                else if (seg.dirX == -1 && seg.position.x <= wp.x) passed = true;
+                else if (seg.dirY == 1 && seg.position.y >= wp.y) passed = true;
 
-        if (direction == -1 && minX <= LEFT_BOUNDARY) {
-            // Correct overshoot so the snake stays flush with the boundary
-            double overshoot = LEFT_BOUNDARY - minX;
-            for (Polygon seg : segments) {
-                seg.position.x += overshoot;
-                seg.position.y += SEGMENT_SIZE;
-            }
-            direction = 1;
-        } else if (direction == 1 && maxX >= RIGHT_BOUNDARY) {
-            double overshoot = maxX - RIGHT_BOUNDARY;
-            for (Polygon seg : segments) {
-                seg.position.x -= overshoot;
-                seg.position.y += SEGMENT_SIZE;
-            }
-            direction = -1;
+                if (passed) {
+                    // Snap exactly to the corner so the grid alignment stays perfect
+                    seg.position.x = wp.x;
+                    seg.position.y = wp.y;
+                    
+                    // Adopt the new direction
+                    seg.dirX = wp.dirX;
+                    seg.dirY = wp.dirY;
+                    
+                    // Look for the next waypoint in the list
+                    seg.targetWaypointIndex++;
+                }
+            }    
+        }
+        
+        // If heading right and hits the right wall
+        if (head.dirX == 1 && head.position.x >= RIGHT_BOUNDARY) {
+            // Drop a waypoint here to turn DOWN
+            waypoints.add(new Waypoint(RIGHT_BOUNDARY, head.position.y, 0, 1));
+            // Drop a second waypoint right below it to turn LEFT
+            waypoints.add(new Waypoint(RIGHT_BOUNDARY, head.position.y + SEGMENT_SIZE, -1, 0));
+        } 
+        // If heading left and hits the left wall
+        else if (head.dirX == -1 && head.position.x <= LEFT_BOUNDARY) {
+            waypoints.add(new Waypoint(LEFT_BOUNDARY, head.position.y, 0, 1));
+            waypoints.add(new Waypoint(LEFT_BOUNDARY, head.position.y + SEGMENT_SIZE, 1, 0));
         }
     }
 
@@ -124,8 +177,19 @@ public class Snake extends Polygon {
         return false;
     }
 
+    // Checks if any part of the snake has touched the bottom boundary
+    public boolean reachedBottom(double bottomY) {
+        for (Segment seg : segments) {
+            // If the segment's Y coordinate is at or past the limit, return true
+            if (seg.position.y >= bottomY) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Exposes the segment list so external code can remove destroyed segments.
-    public ArrayList<Polygon> getSegments() {
+    public ArrayList<Segment> getSegments() {
         return segments;
     }
 

@@ -16,8 +16,8 @@ public class Projectile extends Polygon {
     //and its initial rotation (facing up)
     public Projectile(Point startingPosition, double initialRotation){
         super(new Point[]
-            {new Point(0, 0),new Point(10, 0),  
-            new Point(10, 2), new Point(0, 2)},
+            {new Point(0, 0),new Point(15, 0),  
+            new Point(15, 3), new Point(0, 3)},
             startingPosition, initialRotation);
     }
 
