@@ -4,15 +4,16 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-/*
-CLASS: Ship
-DESCRIPTION: This class represents the player's ship in Snake Invaders
-It extends Polygon for it to be visually drawn, and implements KeyListener to
-process keyboard inputs. It features omnidirectional movement of the ship
-(press arrow keys), a way to shoot projectiles (press spacebar), an emote animation
-(press e), and boundary testing to keep the ship on screen.
-AUTHOR: Joe Chen
- */
+/**
+* CLASS: Ship
+* DESCRIPTION: This class represents the player's ship in Snake Invaders
+* It extends Polygon for it to be visually drawn, and implements KeyListener to
+* process keyboard inputs. It features omnidirectional movement of the ship
+* (press arrow keys), a way to shoot projectiles (press spacebar), an emote animation
+* (press e), and boundary testing to keep the ship on screen.
+* @author Joe Chen
+* @author Vihaan Choudhary
+*/
 public class Ship extends Polygon implements KeyListener{
 
     private boolean up = false;
@@ -26,8 +27,12 @@ public class Ship extends Polygon implements KeyListener{
 
     public boolean shoot = false;
 
-    //Constructor declares the shape of the ship, its starting position offset
-    //and its initial rotation (facing up)
+    
+    /**
+    * Creates a new ship at the given starting position.
+    * 
+    * @param startingPosition the intial position of the ship
+    */
     public Ship(Point startingPosition){
         super(new Point[] {
             new Point(30, 15), new Point(0, 30), 
@@ -35,8 +40,10 @@ public class Ship extends Polygon implements KeyListener{
             startingPosition, 270.0);
     }
 
-    //This method features the main movement of the ship, and tests the screen
-    //boundaries to keep the ship on the screen
+    /**
+    * Updates the ship's position and animation state.
+    * Prevents the ship from moving outside the screen.
+    */
     public void move(){
         if(emoteFramesRemaining > 0){
             this.rotate(30);
@@ -77,8 +84,12 @@ public class Ship extends Polygon implements KeyListener{
         }
     }
 
-    //This method recognizes when keys are pressed and executes movement,
-    //shooting, and the emote (if it's not already emoting) accordingly
+    /**
+    * Recognizes when keys are pressed and executes movement,
+    * shooting, and the emote (if it's not already emoting) accordingly.
+    *  
+    * @param e the key event generated when a key is pressed
+    */
     public void keyPressed(KeyEvent e){
         int keyCode = e.getKeyCode();
         if(keyCode == KeyEvent.VK_UP){
@@ -98,8 +109,13 @@ public class Ship extends Polygon implements KeyListener{
         }
     }
 
-    //This method recognizes when keys are released and stops movement 
-    //and shooting accordingly
+    
+    /**
+    * Recognizes when keys are released and stops movement 
+    * and shooting accordingly.
+    * 
+    * @param e the key event generated when a key is released
+    */
     public void keyReleased(KeyEvent e){
         int keyCode = e.getKeyCode();
         if (keyCode == KeyEvent.VK_UP) {
@@ -115,9 +131,19 @@ public class Ship extends Polygon implements KeyListener{
         }
     }
 
+    /**
+    * Required by the KeyListener interface.
+    * No typed key events are used.
+    * 
+    * @param e the key event generated when a key is typed
+    */
     public void keyTyped(KeyEvent e){}
 
-    //Paints the ship depending on its position on the screen
+    /**
+    * Draws the ship on the screen.
+    * 
+    * @param brush the Graphics object used to draw the ship
+    */
     public void paint(Graphics brush){
         Point[] currentPoints = this.getPoints();
         int[] xCoords = new int[currentPoints.length];

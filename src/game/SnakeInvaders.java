@@ -1,17 +1,23 @@
 package game;
 
-/*
-CLASS: YourGameNameoids
-DESCRIPTION: Extending Game, YourGameName is all in the paint method.
-NOTE: This class is the metaphorical "main method" of your program,
-      it is your control center.
-AUTHORS: Joe Chen, 
+/**
+* CLASS: SnakeInvaders
+* DESCRIPTION: Extending Game, YourGameName is all in the paint method.
+* NOTE: This class is the metaphorical "main method" of your program,
+*       it is your control center.
+* @author Joe Chen
 */
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-
-class SnakeInvaders extends Game {
+/**
+ * CLASS: SnakeInvaders
+ * Controls the main gameplay loop for Snake Invaders.
+ * This class creates the player ship, enemy snake, projectiles,
+ * wave progression, collision handling, and game over display.
+ *
+ */
+public class SnakeInvaders extends Game {
 	//static int counter = 0;
 
 	Ship playerShip;
@@ -30,6 +36,10 @@ class SnakeInvaders extends Game {
 	int waveCooldown = 0;
 	boolean gameOver = false;
 
+	/**
+    * Creates a new Snake Invaders game, initializes the ship and first snake,
+    * and registers key listeners for gameplay and restart behavior.
+    */
   public SnakeInvaders() {
     super("SnakeInvaders!",800,600);
     this.setFocusable(true);
@@ -38,9 +48,11 @@ class SnakeInvaders extends Game {
 	playerShip = new Ship(new Point(width/2 - 30, height - 200));
 	this.addKeyListener(playerShip);
 
-	//RUBRIC REQUIREMENT: 1 Anonymous Class
-        // We are creating an anonymous subclass of KeyAdapter right here on the fly!
-        // It has no name, it just exists exactly where it is needed.
+		/** 
+		* RUBRIC REQUIREMENT: 1 Anonymous Class
+        * We are creating an anonymous subclass of KeyAdapter right here on the fly!
+        * It has no name, it just exists exactly where it is needed.
+		*/
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -61,6 +73,13 @@ class SnakeInvaders extends Game {
 	snake = new Snake(initialLength, initialSpeed);
   }
 
+  	/**
+    * Updates and draws the game state each frame,
+    * including the player ship, projectiles, snake, wave system,
+    * collisions, and the game over screen.
+    
+    * @param brush the Graphics object used to draw the game
+    */
 	public void paint(Graphics brush) {
     	brush.setColor(Color.black);
     	brush.fillRect(0,0,width,height);
@@ -180,6 +199,12 @@ class SnakeInvaders extends Game {
 		playerShip.paint(brush);
   }
 
+  	/**
+    * Starts the game by creating a SnakeInvaders instance
+    * and requesting its first repaint.
+    * 
+    * @param args command-line arguments, not used by this program
+    */
 	public static void main (String[] args) {
    		SnakeInvaders a = new SnakeInvaders();
 		a.repaint();

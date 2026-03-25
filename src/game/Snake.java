@@ -3,16 +3,17 @@ package game;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-/*
-CLASS: Snake
-DESCRIPTION: The enemy snake that moves in a Space Invaders-like pattern.
-             Starts at the top-right, moves left across the screen. When it
-             hits the left boundary it drops one row and reverses to the right,
-             and vice versa. Individual segments can be destroyed externally
-             (remove from getSegments()). The snake keeps moving until it
-             either touches the ship or every segment is destroyed, at which
-             point a new, slightly longer and faster wave begins.
-AUTHOR: Ajay Cunnane, Joe Chen
+/**
+* CLASS: Snake
+* DESCRIPTION: The enemy snake that moves in a Space Invaders-like pattern.
+*              Starts at the top-right, moves left across the screen. When it
+*              hits the left boundary it drops one row and reverses to the right,
+*              and vice versa. Individual segments can be destroyed externally
+*              (remove from getSegments()). The snake keeps moving until it
+*              either touches the ship or every segment is destroyed, at which
+*              point a new, slightly longer and faster wave begins.
+* @author Ajay Cunnane 
+* @author Joe Chen
 */
 public class Snake extends Polygon {
 
@@ -23,24 +24,46 @@ public class Snake extends Polygon {
 
     private double speed;
 
-    //RUBRIC REQUIREMENT: Inner Class 1
-    // A marker dropped by the head telling trailing segments where to turn
+    /**
+    * RUBRIC REQUIREMENT: Inner Class 1
+    * Represents a marker dropped by the head telling trailing segments where to turn.
+    */
     private class Waypoint {
         double x, y;
         int dirX, dirY;
-        
+
+        /**
+        * Creates a waypoint with a position and a new direction.
+        * 
+        * @param x the x-coordinate of the waypoint
+        * @param y the y-coordinate of the waypoint
+        * @param dirX the new horizontal direction after reaching the waypoint
+        * @param dirY the new vertical direction after reaching the waypoint
+        */
         public Waypoint(double x, double y, int dirX, int dirY) {
             this.x = x; this.y = y;
             this.dirX = dirX; this.dirY = dirY;
         }
     }
 
-    // RUBRIC REQUIREMENT: Inner Class 2
-    // Represents a single square of the snake, tracking its own direction
+    /**
+    * RUBRIC REQUIREMENT: Inner Class 2
+    * Represents one square segment of the snake.
+    * Each segment tracks its own movement direction and next target waypoint.
+    */
     public class Segment extends Polygon {
         int dirX, dirY;
         int targetWaypointIndex = 0; // Which waypoint is this segment looking for next?
 
+        /**
+        * Creates a new snake segment.
+        * 
+        * @param shape the polygon shape used for the segment
+        * @param position the starting position of the segment
+        * @param rotation the starting rotation of the segment
+        * @param dirX the horizontal direction of movement
+        * @param dirY the vertical direction of movement
+        */
         public Segment(Point[] shape, Point position, double rotation, int dirX, int dirY) {
             super(shape, position, rotation);
             this.dirX = dirX;
@@ -51,9 +74,17 @@ public class Snake extends Polygon {
     private ArrayList<Segment> segments;
     private ArrayList<Waypoint> waypoints;
 
-
-    // Creates a snake with the given number of segments and movement speed.
-    // Segments are laid out horizontally from the right side of the screen.
+ 
+    /**
+    * Creates a snake with the given number of segments and movement speed.
+    * Segments are laid out horizontally from the right side of the screen.
+    * 
+    * @param shape the polygon shape used for the segment
+    * @param position the starting position of the segment
+    * @param rotation the starting rotation of the segment
+    * @param dirX the horizontal direction of movement
+    * @param dirY the vertical direction of movement
+    */
     public Snake(int length, double speed) {
         // Polygon requires a real shape; we use a 1x1 placeholder since
         // all drawing is handled through the internal segments list.
@@ -77,9 +108,11 @@ public class Snake extends Polygon {
             segments.add(seg);
         }
     }
-
-    // Moves all segments by speed in the current direction, then checks
-    // boundaries and drops + reverses when a wall is reached.
+    
+    /**
+    * Moves all segments by speed in the current direction, then checks
+    * boundaries and drops + reverses when a wall is reached.
+    */
     public void move() {
         if (segments.isEmpty()) return;
 
@@ -141,7 +174,11 @@ public class Snake extends Polygon {
         }
     }
 
-    // Draws every remaining segment in whatever color is currently set on the brush.
+    /**
+    * Draws all remaining snake segments.
+    * 
+    * @param brush the Graphics object used to draw the snake
+    */
     public void paint(Graphics brush) {
         for (Polygon seg : segments) {
             Point[] pts = seg.getPoints();
@@ -155,12 +192,22 @@ public class Snake extends Polygon {
         }
     }
 
-    // Returns true once every segment has been removed.
+    
+    /**
+    * Returns true once every segment has been removed.
+    * 
+    * @return true if no segments remain, false otherwise
+    */
     public boolean isFullyDestroyed() {
         return segments.isEmpty();
     }
 
-    // Checks whether any segment overlaps the given ship polygon.
+    /**
+    * Checks whether any snake segment collides with the player's ship.
+    * 
+    * @param ship the player's ship
+    * @return true if any segment collides with the ship, false otherwise
+    */
     public boolean collidesWithShip(Ship ship) {
         for (Polygon seg : segments) {
             // Check if any corner of this segment is inside the ship
@@ -177,7 +224,13 @@ public class Snake extends Polygon {
         return false;
     }
 
-    // Checks if any part of the snake has touched the bottom boundary
+    
+    /**
+    * Checks if any part of the snake has touched the bottom boundary
+    * 
+    * @param bottomY the y-coordinate of the bottom boundary
+    * @return true if any segment has reached the boundary, false otherwise
+    */
     public boolean reachedBottom(double bottomY) {
         for (Segment seg : segments) {
             // If the segment's Y coordinate is at or past the limit, return true
@@ -188,11 +241,21 @@ public class Snake extends Polygon {
         return false;
     }
 
-    // Exposes the segment list so external code can remove destroyed segments.
+    /**
+    * Returns the list of snake segments so other game logic
+    * can inspect or remove them.
+    * 
+    * @return the list of current snake segments
+    */
     public ArrayList<Segment> getSegments() {
         return segments;
     }
 
+    /**
+    * Returns the current number of snake segments.
+    * 
+    * @return the number of remaining segments
+    */
     public int getSegmentCount() {
         return segments.size();
     }
