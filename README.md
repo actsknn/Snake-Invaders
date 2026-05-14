@@ -1,5 +1,3 @@
-Here is the clean, standard version ready to be copied and pasted right into your repository.
-
 ***
 
 # Snake Invaders
